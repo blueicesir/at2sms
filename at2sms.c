@@ -1,6 +1,9 @@
 // author blueicesir@gmail.com
 // test on raspberrypi debian wheezy.
 // init version 2013/03/07
+// 功能简介：在RaspberryPi Model B上，使用ZTE 3G无线上网卡发送短信
+// 用于红外监控或GPS反馈坐标。
+// 未来计划通过数据通道上报，但短信作为辅助手段
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
