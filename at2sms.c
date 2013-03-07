@@ -1,6 +1,6 @@
 // author blueicesir@gmail.com
 // test on raspberrypi debian wheezy.
-// initial version 2013/03/07
+// init version 2013/03/07
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
@@ -19,8 +19,6 @@ int put2Serial(int fd,char* atcmd)
 	tcflush(fd,TCIFLUSH);
 	return write(fd,atcmd,strlen(atcmd));
 }
-
-
 
 int get4Serial(int fd)
 {
@@ -52,13 +50,15 @@ int get4Serial(int fd)
 	return readlen;
 }
 
-int main()
+int main(int argc,char** argv)
 {
 	int fd;
 	struct termios options;
 
-	fd = open("/dev/ttyUSB1", O_RDWR);
-	// fcntl(fd, F_SETFL, 0);
+	if(argc!=2)
+		fd = open("/dev/ttyUSB1",O_RDWR);
+	else
+		fd = open(argv[1],O_RDWR);
 
 	tcgetattr(fd, &options);
 	options.c_cflag &= ~PARENB;	// 无奇偶校验
@@ -67,18 +67,18 @@ int main()
 	options.c_cflag |= CS8;	// 8位数据位
 	options.c_lflag &=~(ICANON | ECHO | ECHOE |ISIG);	// 标准输入输出，不回显，不转换特殊控制字符
 	options.c_cc[VMIN]  = 0;
-	options.c_cc[VTIME] = 50;	// Time 5 second
+	options.c_cc[VTIME] = 50;	// 超时时间，设置其它值会导致异常 
 
 	cfsetispeed(&options,B460800);	// 设置输入速率
 	cfsetospeed(&options,B460800);	// 设置输出速率
 
 	tcsetattr(fd, TCSANOW, &options);	// 修改终端属性，立即生效
 
-
 	// 初始化Modem
 	put2Serial(fd,"ATZ\r");
 	get4Serial(fd);
 
+	// 禁止回显
 	put2Serial(fd,"ATE0\r");
 	get4Serial(fd);
 
@@ -89,6 +89,10 @@ int main()
 
 	// 设置短信中心号码
 	put2Serial(fd,"AT+CSCA=\"+8613010888500\"\r");
+	get4Serial(fd);
+
+	// 保存参数-实际上不用每次都保存
+	put2Serial(fd,"AT&W\r");
 	get4Serial(fd);
 
 	// 设置发送短信格式TEXT模式
@@ -112,7 +116,7 @@ int main()
 	put2Serial(fd,message);
 	get4Serial(fd);
 
-	char sEnd[5]={0};
+	char sEnd[2]={0};
 	sEnd[0]=0x1a;
 	put2Serial(fd,sEnd);
 	get4Serial(fd);
