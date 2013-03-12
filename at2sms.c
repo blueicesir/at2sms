@@ -4,6 +4,8 @@
 // 功能简介：在RaspberryPi Model B上，使用ZTE 3G无线上网卡发送短信
 // 用于红外监控或GPS反馈坐标。
 // 未来计划通过数据通道上报，但短信作为辅助手段
+// 程序使用波特率60800
+// 8N1 - 8位数据位，奇偶校验，停止位1
 #include<stdio.h>
 #include<stdlib.h>
 #include<unistd.h>
